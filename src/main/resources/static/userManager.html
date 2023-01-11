@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Title</title>
+    <!--    TODO 更新了新的版本号 依然没有解决axios.post不是方法的问题 等到 10.8 再做调试 -->
+    <!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+    <script src="https://unpkg.com/axios@1.0.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<style>
+    .el-table .warning-row {
+        background: oldlace;
+    }
+
+    .el-table .success-row {
+        background: #f0f9eb;
+    }
+    .el-row {
+        margin-bottom: 20px;
+    }
+    .el-col {
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        /*border-radius: 4px;*/
+        /*min-height: 36px;*/
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .fontType{
+        font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    }
+    .el-header {
+        /*background-color: #B3C0D1;*/
+        /*color: #333;*/
+        text-align: center;
+        /*background-image:url("8f76e81df0e18f3ce8c8a064fc6acb24.jpeg");*/
+        /*background-size: contain;*/
+        /*background-repeat: no-repeat;*/
+        /*height: 229px;*/
+    }
+    .el-main {
+        text-align: center;
+        background-image: url("5bfaaabca3c0f1ed197646812f30f85f.jpg");
+        height: 900px;
+        position: relative;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+</style>
+
+<body>
+
+<div id="app">
+    <el-container>
+        <el-header>
+            <el-row :gutter="24">
+                <el-col :span="4"><div class="grid-content ">
+                    <div  style="font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF">
+                        课程信息系统
+                    </div>
+                </div>
+                </el-col>
+
+                <el-col :span="4">
+                    <div class="grid-content ">
+                        <el-button type="primary" round @click="rootUser">
+                            课程管理
+                        </el-button>
+                    </div>
+                </el-col>
+
+                <el-col :span="4">
+                    <div class="grid-content ">
+                        <el-button type="primary" round @click="openAddUserForm">
+                            新增用户
+                        </el-button>
+                    </div>
+                </el-col>
+                <el-col :span="5">
+                    <div class="grid-content ">
+                        <el-input placeholder="请输入用户账号" style="width: 180px" size="medium" v-model="searchByName" >
+                        </el-input>
+                        <el-button type="primary" icon="el-icon-search" @click="searchUserByName">搜索</el-button>
+                    </div>
+                </el-col>
+                <el-col :span="4"><div class="grid-content bg-purple">
+                    <div style="text-align: center;font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF" :data="userdata">
+                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+                        管理员
+                    </div>
+                </div>
+                </el-col>
+            </el-row>
+        </el-header>
+        <el-main>
+            <template >
+            <el-table
+                    :data="users"
+                    style="width: 100%"
+                    :row-class-name="tableRowClassName">
+                <el-table-column
+                        prop="identity"
+                        label="用户身份"
+                        align="center">
+                </el-table-column>
+                <el-table-column
+                        prop="username"
+                        label="用户账号"
+                        align="center">
+                </el-table-column>
+                <el-table-column
+                        prop="password"
+                        label="用户密码"
+                        align="center">
+                </el-table-column>
+                <el-table-column
+                        label="操作"
+                        align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" @click="editUser(scope.row)">编辑</el-button>
+                        <el-button type="danger"   @click="handleDelete(scope.row)">删除 </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <!--新增用户-->
+            <el-dialog title="课程信息" :visible.sync="dialogAddFormVisible">
+                <el-form :model="addFormData">
+                    <el-form-item label="账号">
+                        <el-input autocomplete="off" v-model="addFormData.username" maxlength="10" show-word-limit></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="密码">
+                        <el-input autocomplete="off" v-model="addFormData.password" maxlength="10" show-word-limit></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="用户身份" :label-width="formLabelWidth" prop="identity">
+                        <el-select v-model="addFormData.identity" placeholder="用户身份">
+                            <el-option label="VIP用户" value="1"></el-option>
+                            <el-option label="非VIP用户" value="0"></el-option>
+                            <el-option label="管理员用户" value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancelAddUser">取消</el-button>
+                    <el-button type="primary" @click="addUser">确 定</el-button>
+                </div>
+
+            </el-dialog>
+
+            <!--修改用户信息-->
+            <el-dialog title="用户信息" :visible.sync="dialogFormVisible">
+                <el-form :model="formData">
+                    <el-form-item label="用户名" :label-width="formLabelWidth" >
+                        <el-input  autocomplete="off" v-model="formData.username"></el-input>
+                    </el-form-item>
+
+                    <el-form-item label="用户密码" :label-width="formLabelWidth" >
+                        <el-input  autocomplete="off" v-model="formData.password"></el-input>
+                    </el-form-item>
+                    <el-form-item label="用户身份" :label-width="formLabelWidth" prop="vip">
+                        <el-select v-model="formData.identity" placeholder="课程等级">
+                            <el-option label="VIP用户" value="1"></el-option>
+                            <el-option label="非VIP用户" value="0"></el-option>
+                            <el-option label="管理员" value="2"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="cancelUpdate">取 消</el-button>
+                    <el-button type="primary" @click="updateUser">确 定</el-button>
+                </div>
+            </el-dialog>
+            </template>
+        </el-main>
+    </el-container>
+
+
+
+
+
+<!--        展示用户信息-->
+
+</div>
+
+
+<script>
+    new Vue({
+        el:"#app",
+        data() {
+            return {
+                users:[],
+                userdata:[],
+                formData:[],
+                searchByName:"",
+                formLabelWidth: '120px',
+                dialogFormVisible:false,
+                dialogAddFormVisible:false,
+                addFormData:{
+                    username:"",
+                    password:"",
+                    identity:""
+                }
+            }
+        },
+        methods: {
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex%2 === 0) {
+                    return 'warning-row';
+                } else if (rowIndex%2 === 1) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            editUser(row){
+                var _this = this;
+                this.dialogFormVisible = true;
+                axios.get("/user/getbyid/"+row.id).then(function (resp) {
+                    _this.formData = resp.data.data;
+                })
+            },
+            cancelUpdate(){
+                this.dialogFormVisible = false;
+            },
+
+            updateUser(){
+              var _this = this;
+              axios.put("/user/update",_this.formData).then(function (resp) {
+                  if (resp.data.code===1) {
+                      _this.$message.success(resp.data.msg);
+                      this.selectAll();
+                  }else {
+                      _this.$message.error(resp.data.msg);
+                      this.selectAll();
+                  }
+              })
+                this.dialogFormVisible = false;
+                this.selectAll();
+            },
+            openAddUserForm(){
+                this.dialogAddFormVisible=true;
+            },
+            addUser(){
+                var _this = this;
+                axios.post("/user/adduser",_this.addFormData).then(function (resp) {
+                    if (resp.data.code===1) {
+                        _this.$message.success(resp.data.msg);
+                        _this.selectAll();
+                    }else {
+                        _this.$message.error(resp.data.msg);
+                        _this.selectAll();
+                    }
+                })
+                _this.dialogAddFormVisible = false;
+            },
+            cancelAddUser(){
+                this.dialogAddFormVisible=false;
+            },
+            handleDelete(row){
+                var _this = this;
+              axios.delete("/user/delete/"+row.id).then(function (resp){
+                  if (resp.data.code===1) {
+                      _this.$message.success(resp.data.msg);
+                      _this.selectAll();
+                  }else {
+                      _this.$message.error(resp.data.msg);
+                      _this.selectAll();
+                  }
+              })
+            },
+            rootUser(){
+                window.location.href="/static/rootUser.html";
+            },
+            searchUserByName(){
+              var _this = this;
+              if (this.searchByName===""){
+                  this.selectAll();
+              }else {
+                  axios.get("/user/selectbyname/"+_this.searchByName).then(function (resp) {
+                      if (resp.data.code===1) {
+                          _this.users = resp.data.data;
+                          _this.$message.success(resp.data.msg);
+                      }else {
+                          _this.$message.error(resp.data.msg);
+                      }
+                  })
+              }
+            },
+            selectAll(){
+                var _this  = this;
+                axios.get("/user/selectalluser").then(function (resp){
+                    _this.users = resp.data.data;
+                })
+
+                axios.get("/course/getbyidentity").then(function (resp){
+                    _this.course = resp.data.data;
+                })
+            },
+        },
+        mounted() {
+            this.selectAll();
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>
+</body>
+</html>

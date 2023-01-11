@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+  <meta charset="UTF-8">
+
+  <title>Title</title>
+  <!--    TODO 更新了新的版本号 依然没有解决axios.post不是方法的问题 等到 10.8 再做调试 -->
+  <!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+  <script src="https://unpkg.com/axios@1.0.0/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<style>
+  .el-table .warning-row {
+    background: oldlace;
+  }
+
+  .el-table .success-row {
+    background: #f0f9eb;
+  }
+  .el-row {
+    margin-bottom: 20px;
+  }
+  .el-col {
+    border-radius: 4px;
+  }
+  .bg-purple-dark {
+    background: #99a9bf;
+  }
+  .bg-purple {
+
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+  .grid-content {
+    /*border-radius: 4px;*/
+    /*min-height: 36px;*/
+  }
+  .row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+  }
+  .fontType{
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+  }
+  .el-header {
+    /*background-color: #B3C0D1;*/
+    /*color: #333;*/
+    text-align: center;
+    /*background-image:url("8f76e81df0e18f3ce8c8a064fc6acb24.jpeg");*/
+    /*background-size: contain;*/
+    /*background-repeat: no-repeat;*/
+    /*height: 229px;*/
+  }
+  .el-footer {
+    background-color: #99a9bf;
+    color: #333;
+    text-align: center;
+    line-height: 60px;
+    /*background-image:url("8f76e81df0e18f3ce8c8a064fc6acb24.jpeg");*/
+  }
+
+
+  .el-main {
+    text-align: center;
+    background-image: url("5bfaaabca3c0f1ed197646812f30f85f.jpg");
+    height: 900px;
+    position: relative;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+</style>
+
+<body>
+
+<div id="app">
+  <el-container>
+    <el-header><el-row :gutter="20">
+
+      <el-col :span="5"><div class="grid-content ">
+        <div  style="font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF">
+          课程信息系统
+        </div>
+      </div>
+      </el-col>
+
+      <el-col :span="5">
+
+      </el-col>
+
+      <el-col :span="5">
+        <div class="grid-content ">
+          <el-input placeholder="请输入课程名" style="width: 180px" size="medium" v-model="searchCourseName" >
+          </el-input>
+          <el-button type="primary" icon="el-icon-search" @click="searchByName">搜索</el-button>
+        </div>
+      </el-col>
+
+
+      <el-col :span="5"><div class="grid-content bg-purple">
+        <div style="text-align: center;font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF" :data="userdata">
+          <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+          {{String(userdata.identity)==='0'?"非VIP用户":"VIP"}}
+        </div>
+      </div>
+      </el-col>
+    </el-row></el-header>
+    <el-main>
+      <template >
+
+
+
+        <el-table
+                :data="course"
+                style="width: 100%"
+                :row-class-name="tableRowClassName">
+
+          <el-table-column
+                  prop="vip"
+                  label="课程等级"
+                  align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="courseName"
+                  label="课程名"
+                  align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="courseMoney"
+                  label="售价"
+                  align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="courseIntroduce"
+                  label="描述"
+                  align="center">
+          </el-table-column>
+          <el-table-column
+                  prop="courseClassify"
+                  label="分类"
+                  align="center">
+          </el-table-column>
+        </el-table>
+      </template>
+    </el-main>
+  </el-container>
+
+
+    <div class="add_form">
+    </div>
+  </template>
+</div>
+
+
+<script>
+  new Vue({
+    el:"#app",
+    data() {
+      return {
+        course:[],
+        userdata:[],
+        formLabelWidth: '120px',
+        searchCourseName:''
+      }
+    },
+    methods: {
+      tableRowClassName({row, rowIndex}) {
+        if (rowIndex%2 === 0) {
+          return 'warning-row';
+        } else if (rowIndex%2 === 1) {
+          return 'success-row';
+        }
+        return '';
+      },
+      selectAll(){
+        var _this  = this;
+        axios.get("/user/getcache").then(function (resp){
+          _this.userdata = resp.data.data;
+        })
+
+        axios.get("/course/getbyidentity").then(function (resp){
+          _this.course = resp.data.data;
+        })
+      },
+      searchByName() {
+        var _this = this;
+        if (_this.searchCourseName === ""){
+          this.selectAll();
+        } else {
+          axios.get("/course/name/" + _this.searchCourseName).then(function (resp) {
+            _this.course = resp.data.data;
+            _this.$message({
+              type: "success",
+              message: "查询完成"
+            })
+            console.log(_this.formData);
+          })
+        }
+      }
+    },
+    mounted() {
+      this.selectAll();
+    }
+
+  });
+
+</script>
+
+</body>
+
+</html>

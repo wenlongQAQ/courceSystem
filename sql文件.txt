@@ -1,0 +1,43 @@
+create schema work collate utf8mb4_0900_ai_ci;
+use work;
+create table course
+(
+    course_name      varchar(255) null comment '课程名称',
+    vip              int          null comment '是否属于vip课程，1表示属于0表示不属于',
+    course_introduce varchar(255) null comment '课程简介',
+    course_classify  varchar(255) null comment '课程所属的分类',
+    course_money     double       null comment '课程的售价',
+    id               bigint auto_increment comment '课程唯一主键'
+        primary key
+);
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10001, 'Georgi', 'Facello', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10002, 'Bezalel', 'Simmel', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10003, 'Parto', 'Bamford', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10004, 'Chirstian', 'Koblick', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10005, 'Kyoichi', 'Maliniak', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10006, 'Anneke', 'Preusig', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10007, 'Tzvetan', 'Zielinski', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10008, 'Saniya', 'Kalloufi', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10009, 'Sumant', 'Peac', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10010, 'Duangkaew', 'Piveteau', 'F');
+create table user
+(
+    username varchar(10)   null,
+    password varchar(18)   null,
+    id       bigint auto_increment
+        primary key,
+    identity int default 0 null,
+    constraint userdata_username_uindex
+        unique (username)
+);
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10001, 'Georgi', 'Facello', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10002, 'Bezalel', 'Simmel', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10003, 'Parto', 'Bamford', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10004, 'Chirstian', 'Koblick', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10005, 'Kyoichi', 'Maliniak', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10006, 'Anneke', 'Preusig', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10007, 'Tzvetan', 'Zielinski', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10008, 'Saniya', 'Kalloufi', 'M');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10009, 'Sumant', 'Peac', 'F');
+INSERT INTO MY_TABLE(id, first_name, last_name, birth) VALUES (10010, 'Duangkaew', 'Piveteau', 'F');
+

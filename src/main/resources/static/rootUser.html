@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Title</title>
+<!--    TODO 更新了新的版本号 依然没有解决axios.post不是方法的问题 等到 10.8 再做调试 -->
+<!--    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+    <script src="https://unpkg.com/axios@1.0.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<style>
+    .el-table .warning-row {
+        background: oldlace;
+    }
+
+    .el-table .success-row {
+        background: #f0f9eb;
+    }
+     .el-row {
+         background-color: #99a9bf;
+         margin-bottom: 20px;
+    }
+    .el-col {
+
+        border-radius: 4px;
+    }
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+    .bg-purple {
+
+    }
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+    .grid-content {
+        /*border-radius: 4px;*/
+        /*min-height: 36px;*/
+    }
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+    .fontType{
+        font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    }
+    .el-header {
+        /*background-color: #B3C0D1;*/
+        /*color: #333;*/
+        text-align: center;
+        /*background-image:url("8f76e81df0e18f3ce8c8a064fc6acb24.jpeg");*/
+        /*background-size: contain;*/
+        /*background-repeat: no-repeat;*/
+        /*height: 229px;*/
+    }
+    .el-footer {
+        background-color: #99a9bf;
+        color: #333;
+        text-align: center;
+        line-height: 60px;
+        /*background-image:url("8f76e81df0e18f3ce8c8a064fc6acb24.jpeg");*/
+    }
+
+    .el-aside {
+        background-color: #99a9bf;
+        color: #333;
+        text-align: center;
+
+    }
+
+    .el-main {
+        text-align: center;
+        background-image: url("5bfaaabca3c0f1ed197646812f30f85f.jpg");
+        height: 900px;
+        position: relative;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    body > .el-container {
+        margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+        line-height: 260px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+        line-height: 320px;
+    }
+    .all{
+        width: 100%;
+        height: 100%;
+    }
+    </style>
+
+<body>
+
+<div id="app" class="all">
+    <el-container>
+        <el-header >
+            <el-row :gutter="20">
+            <el-col :span="4"><div class="grid-content ">
+                <div  style="font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF">
+                    课程信息管理系统
+                </div>
+            </div>
+            </el-col>
+            <el-col :span="4">
+                <div class="grid-content ">
+                    <el-button type="primary" round @click="addBook">
+                        新增
+                    </el-button>
+                </div>
+            </el-col>
+            <el-col :span="4">
+                <div class="grid-content ">
+                    <el-button type="primary" round @click="managerUser">
+                        用户管理
+                    </el-button>
+                </div>
+            </el-col>
+            <el-col :span="4">
+                <div class="grid-content ">
+                    <el-input placeholder="请输入课程名" style="width: 180px" size="medium" v-model="searchCourseName" >
+                    </el-input>
+                    <el-button type="primary" icon="el-icon-search" @click="searchByName">搜索</el-button>
+                </div>
+            </el-col>
+
+
+            <el-col :span="4"><div class="grid-content bg-purple">
+                <div style="text-align: center;font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF">
+                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+                    管理员
+                </div>
+            </div>
+            </el-col>
+        </el-row>
+        </el-header>
+        <el-container>
+                <el-main >
+                    <template >
+                        <el-dialog title="课程信息" :visible.sync="dialogAddFormVisible">
+                            <el-form :model="addFormData">
+                                <el-form-item label="课程名"
+                                              :label-width="formLabelWidth"
+                                              :rules="[{required: true,
+                                       message: '课程不能为空'}
+                               ]">
+
+                                    <el-input autocomplete="off" v-model="addFormData.courseName" maxlength="10" show-word-limit></el-input>
+                                </el-form-item>
+
+                                <el-form-item label="售价"
+                                              :label-width="formLabelWidth"
+                                              :rules="[
+                                       { required: true, message: '售价不能为空'},
+                                       {type:'number',message: '售价必须为数字值'}
+                                       ]">
+                                    <el-input autocomplete="off" v-model="addFormData.courseMoney" maxlength="5" show-word-limit></el-input>
+                                </el-form-item>
+                                <el-form-item label="描述"
+                                              :label-width="formLabelWidth"
+                                              :rules="[
+                                       { required: true, message: '描述不能为空'}
+                                       ]">
+                                    <el-input type="textarea" autocomplete="off" v-model="addFormData.courseIntroduce" maxlength="100" show-word-limit> </el-input>
+                                </el-form-item>
+                                <el-form-item label="分类" :label-width="formLabelWidth">
+                                    <el-input autocomplete="off" v-model="addFormData.courseClassify" maxlength="10" show-word-limit></el-input>
+                                </el-form-item>
+                                <el-form-item label="课程等级" :label-width="formLabelWidth" prop="vip">
+                                    <el-select v-model="addFormData.vip" placeholder="课程等级">
+                                        <el-option label="VIP课程" value="1"></el-option>
+                                        <el-option label="非VIP课程" value="0"></el-option>
+                                    </el-select>
+                                </el-form-item>
+                            </el-form>
+                            <div slot="footer" class="dialog-footer">
+                                <el-button @click="cancelAddBook">取消</el-button>
+                                <el-button type="primary" @click="addBookData">确 定</el-button>
+                            </div>
+                        </el-dialog>
+
+
+
+
+
+
+                        <!--        初始化展示 目前数据库中所有的课程  -->
+                        <el-table
+                                :data="course"
+                                style="width: 100%"
+                                :row-class-name="tableRowClassName">
+
+                            <el-table-column
+                                    prop="vip"
+                                    label="课程等级"
+                                    align="center">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="courseName"
+                                    label="课程名"
+                                    align="center">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="courseMoney"
+                                    label="售价"
+                                    align="center">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="courseIntroduce"
+                                    label="描述"
+                                    align="center">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="courseClassify"
+                                    label="分类"
+                                    align="center">
+                            </el-table-column>
+                            <!--            <el-table-column-->
+                            <!--                    prop="courseClassify"-->
+                            <!--                    label="分类"-->
+                            <!--                    align="center">-->
+                            <!--            </el-table-column>-->
+                            <el-table-column
+                                    label="操作"
+                                    align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="primary" @click="editBook(scope.row)">编辑</el-button>
+                                    <el-button type="danger"   @click="handleDelete(scope.row)">删除 </el-button>
+                                </template>
+
+                            </el-table-column>
+                        </el-table>
+
+
+
+
+                        <div class="add_form">
+                            <!--        <el-button type="text" @click="dialogFormVisible = true">打开嵌套表单的 Dialog</el-button>-->
+                            <!--
+                            editor form 修改图书内容的表单
+                            -->
+                            <el-dialog title="课程信息" :visible.sync="dialogFormVisible">
+                                <el-form :model="formData">
+                                    <el-form-item label="课程名" :label-width="formLabelWidth" >
+
+                                        <el-input  autocomplete="off" v-model="formData.courseName"></el-input>
+                                    </el-form-item>
+
+                                    <el-form-item label="售价" :label-width="formLabelWidth" >
+                                        <el-input  autocomplete="off" v-model="formData.courseMoney"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="描述" :label-width="formLabelWidth" >
+                                        <el-input type="textarea" autocomplete="off" v-model="formData.courseIntroduce"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="分类" :label-width="formLabelWidth" >
+                                        <el-input  autocomplete="off" v-model="formData.courseClassify"></el-input>
+                                    </el-form-item>
+                                    <el-form-item label="课程等级" :label-width="formLabelWidth" prop="vip">
+                                        <el-select v-model="formData.vip" placeholder="课程等级">
+                                            <el-option label="VIP课程" value="1"></el-option>
+                                            <el-option label="非VIP课程" value="0"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+
+                                </el-form>
+                                <div slot="footer" class="dialog-footer">
+                                    <el-button @click="cancelUpdate">取 消</el-button>
+                                    <el-button type="primary" @click="updateBook">确 定</el-button>
+                                </div>
+                            </el-dialog>
+                        </div>
+                    </template>
+                </el-main>
+        </el-container>
+    </el-container>
+
+</div>
+
+
+<script>
+    new Vue({
+        el:"#app",
+        data() {
+            return {
+                course:[],
+                // population:'',
+                searchCourseName:"",
+                dialogFormVisible: false,
+                dialogAddFormVisible:false,
+                formData: {
+                    courseName:"",
+                    courseMoney:"",
+                    courseIntroduce:"",
+                    courseClassify:"",
+                    id:"",
+                    vip:""
+                },
+                addFormData: {
+                    courseName:"",
+                    courseMoney:"",
+                    courseIntroduce:"",
+                    courseClassify:"",
+                    id:"",
+                    vip:""
+                },
+                formLabelWidth: '120px'
+            }
+        },
+        methods: {
+            tableRowClassName({row, rowIndex}) {
+                if (rowIndex%2 === 0) {
+                    return 'warning-row';
+                } else if (rowIndex%2 === 1) {
+                    return 'success-row';
+                }
+                return '';
+            },
+            editBook(row){
+                var _this = this;
+              axios.get("/course/getone/"+row.id).then(function (resp){
+                  _this.formData = resp.data.data;
+                  _this.dialogFormVisible=true;
+              })
+            },
+            handleDelete(row) {
+                var _this = this;
+                axios.delete("/course/delete/"+row.id).then(function (resp){
+                    if(resp.data.code === 1){
+                        _this.$message({
+                            message: resp.data.msg,
+                            type: 'success'
+                        });
+                        _this.visible=false;
+                        _this.selectAll();
+                    }else {
+                        _this.$message.error(resp.data.msg);
+                        _this.visible=false;
+                        _this.selectAll();
+                    }
+                })
+            },
+            test() {
+                this.dialogFormVisible = false;
+            },
+            selectAll(){
+                var _this  = this;
+                axios.get("/course/getall").then(function (resp){
+                    _this.course = resp.data.data;
+                })
+                // axios.get("/users/population").then(function (resp){
+                //     _this.population = resp.data;
+                // })
+            },
+            updateBook(){
+                var _this = this;
+                axios.put("/course/edit",_this.formData).then(function (resp){
+                    if(resp.data.code === 1){
+                        _this.$message({
+                            message: resp.data.msg,
+                            type: 'success'
+                        });
+                        _this.dialogFormVisible = false;
+                        _this.selectAll();
+                    }
+                    else{
+                        _this.$message.error(resp.data.msg);
+                    }
+
+                })
+            },
+            cancelUpdate(){
+                this.$message({
+                    type :'info',
+                    message: '成功放弃修改'
+                })
+                this.dialogFormVisible = false;
+            },
+            cancelAddBook(){
+                this.dialogAddFormVisible = false;
+                this.addFormData={};
+            },
+            addBook(){
+                this.dialogAddFormVisible = true;
+            },
+            managerUser(){
+                window.location.href="/static/userManager.html";
+            },
+            addBookData(){
+                var _this = this;
+                axios.post("/course/addcourse",_this.addFormData).then(function (resp){
+                    _this.dialogAddFormVisible=false;
+                    if(resp.data.code===1){
+                        _this.$message(
+                            {
+                                type:"success",
+                                message:resp.data.msg
+                            })
+                    }
+                    else {
+                        _this.$message(
+                            {
+                                type:"error",
+                                message:resp.data.msg
+                            })
+                    }
+                    _this.addFormData = {};
+                    _this.selectAll();
+                })
+            },
+            searchByName() {
+                var _this = this;
+                if (_this.searchCourseName === ""){
+                    this.selectAll();
+                } else {
+                    axios.get("/course/name/" + _this.searchCourseName).then(function (resp) {
+                        _this.course = resp.data.data;
+                        _this.$message({
+                            type: "success",
+                            message: "查询完成"
+                        })
+                        console.log(_this.formData);
+                    })
+                }
+            }
+        },
+        mounted() {
+            var _this = this;
+            axios.get("/books").then(function (resp){
+                _this.books = resp.data;
+            })
+            this.selectAll();
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>

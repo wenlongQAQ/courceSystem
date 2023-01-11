@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://unpkg.com/axios@1.0.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+<body>
+<div id="register">
+
+    <el-container>
+        <el-header style="text-align: center;font-family: Helvetica Neue , Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, 微软雅黑, Arial, sans-serif;font-size: large;color: #409EFF">欢迎注册天南课程管理系统</el-header>
+        <el-main >
+            <el-form ref="form" :model="registerData" align="center" label-width="150px">
+                <el-form-item label="账号:" >
+                    <el-input v-model="registerData.username" style="width: 60%" maxlength="11" show-word-limit>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="密码:">
+                    <el-input type="password" maxlength="22" show-word-limit prefix-icon="el-icon-lock" v-model="registerData.password" style="width: 60%" show-password>
+                    </el-input>
+                </el-form-item>
+                <el-form-item label="请确认你的密码:">
+                    <el-input type="password" maxlength="22" show-word-limit prefix-icon="el-icon-lock" v-model="checkPassword" style="width: 60%" show-password>
+                    </el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="success" @click="userRegister">注册</el-button>
+                </el-form-item>
+            </el-form>
+        </el-main>
+    </el-container>
+</div>
+<script>
+    new Vue({
+        el:"#register",
+        data(){
+            return{
+
+                registerData:{
+                    username:"",
+                    password:"",
+                    identity:0
+                },
+                checkPassword:''
+            }
+        },
+        methods: {
+            userRegister() {
+                if (this.registerData.username!=='' && this.registerData.password!=''){
+                    if(this.registerData.password === this.checkPassword){
+                        var _this = this;
+                        axios.post("/user/register",_this.registerData).then(function (resp){
+                            if(resp.data.code === 1){
+                                _this.$message.success(resp.data.msg);
+                                window.location.href="/static/login.html";
+                            }
+
+                            else _this.$message.error(resp.data.msg);
+                        })
+                    }else{
+                        this.$message.error("非法的注册请求!(两次输入的密码不相同)");
+                    }
+
+                }
+                else{
+                    this.$message.error("非法的注册请求!(账号或密码不能为空)");
+                }
+
+            }
+        }
+    })
+</script>
+</body>
+</html>
